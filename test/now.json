@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "**/*.ts",
+            "use": "@otogira/now-denolis"
+        }
+    ],
+    "build": {
+        "env": {
+            "DENO_TSCONFIG": "./tsconfig.json"
+        }
+    }
+}
