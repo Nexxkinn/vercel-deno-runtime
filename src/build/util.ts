@@ -1,10 +1,10 @@
 import {
   Meta,
   Config,
-  execAsync,
 } from "@vercel/build-utils";
 import { DenoVersion } from "../types";
 import path from "path";
+import execa from "execa";
 
 export const DENO_LATEST = "latest";
 export const DENO_VERSION = process.env.DENO_VERSION || DENO_LATEST;
@@ -15,11 +15,11 @@ export async function getDeno(
   if (meta && meta.isDev) {
     // Use the system-installed version of `deno` in PATH for `now dev`
     const command = "deno --version";
-    let proc: { stdout: string; stderr: string; code: number };
+    let proc: { stdout: string; stderr: string};
     if (process.platform === "win32") {
-      proc = await execAsync("cmd.exe", ["/C", command]);
+      proc = await execa("cmd.exe", ["/C", command], { stdio: 'pipe' });
     } else {
-      proc = await execAsync("sh", ["-c", command]);
+      proc = await execa("sh", ["-c", command], { stdio: 'pipe' });
     }
     let deno = proc.stdout.split(/\n/)[0];
     return parseDenoVersion(deno);

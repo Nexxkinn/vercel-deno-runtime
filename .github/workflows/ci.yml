@@ -1,9 +1,11 @@
 name: ci
 
-on: push
+on: 
+  push:
+    branches: [ master, playground ]
 
 env:
-  PACKAGE_NAME: '@otogira/now-denolis-dev'
+  PACKAGE_NAME: 'vercel-deno-dev'
 
 jobs:
   build:
@@ -11,7 +13,7 @@ jobs:
       matrix:
         os: ['ubuntu-latest']
         node: ['12.x']
-        deno: ['1.0.0']
+        deno: ['1.0.5']
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: build-${{ matrix.os }}
@@ -44,7 +46,7 @@ jobs:
       matrix:
         os: ['ubuntu-latest']
         node: ['12.x']
-        deno: ['1.0.0']
+        deno: ['1.0.5']
       fail-fast: false
     runs-on: ${{ matrix.os }}
     name: test-${{ matrix.os }}

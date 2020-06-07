@@ -4,7 +4,6 @@ import {
   Files,
   debug,
   DownloadedFiles,
-  execAsync,
   createLambda,
   FileFsRef,
 } from "@vercel/build-utils";
@@ -19,8 +18,9 @@ import runUserScripts from "./runUserScripts";
 import grabDenoDirFiles from "./grabDenoDirFiles";
 import getDenoLambaLayer from "./getDenoLambdaLayer";
 import {version} from '../version';
+import execa from "execa";
 
-export async function build(opts: BuildOptions) {
+export default async function build(opts: BuildOptions) {
   const { files, entrypoint, workPath: wp, config, meta = {} } = opts;
   const workPath = getWorkPath(wp, entrypoint);
   await fs.mkdirp(workPath);
@@ -37,12 +37,13 @@ export async function build(opts: BuildOptions) {
   //   await replaceBinDeno(workPath);
   // }
 
-  debug("downloading source files");
+  console.log("downloading source files");
   const downloadedFiles = await download(
     files,
     path.join(workPath, "src"),
     meta,
   );
+
   const entryPath = downloadedFiles[entrypoint].fsPath;
 
   await runUserScripts(entryPath);
@@ -66,9 +67,19 @@ async function buildDenoLambda(
 ) {
   // Booleans
   const unstable = !!process.env.DENO_UNSTABLE;
-  const tsConfig = process.env.DENO_CONFIG;
+  let tsconfig= "";
+  try {
+    const CONFIG = process.env.DENO_TSCONFIG || '';
+    if(CONFIG) {
+      tsconfig = downloadedFiles[CONFIG].fsPath || '';
+      console.log(`using custom typescript config: ${process.env.DENO_TSCONFIG}`)
+    }
+  }
+  catch(err){
+    console.log(`DENO_TSCONFIG variable was set to ${process.env.DENO_TSCONFIG}, but no such file exists. ignoring...`)
+  }
 
-  debug("building single file");
+  console.log("building single file");
   const entrypointPath = downloadedFiles[entrypoint].fsPath;
   const entrypointDirname = path.dirname(entrypointPath);
 
@@ -78,18 +89,17 @@ async function buildDenoLambda(
   const denoDir = path.join(workPath, "layer", ".deno_dir");
   const denoVer = parseDenoVersion(process.env.DENO_VERSION || "latest");
 
-  debug("running `deno bundle`...");
+  console.log("running `deno bundle`...");
   try {
     const denoBin = layerFiles["bin/deno"].fsPath as string;
-    await execAsync(
+    await execa(
       denoBin,
       [
         "bundle",
         entrypointPath,
         binPath,
-        // Boolean
+        ...(tsconfig && (denoVer.major >= 1) ? ["-c", tsconfig] : []),
         ...(unstable ? ["--unstable"] : []),
-        ...(tsConfig && (denoVer.major >= 1) ? ["-c", tsConfig] : []),
       ],
       {
         env: {

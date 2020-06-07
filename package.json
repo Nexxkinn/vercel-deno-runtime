@@ -1,5 +1,5 @@
 {
-  "name": "now-denolis",
+  "name": "vercel-deno",
   "version": "0.1.0",
   "description": "run deno on vercel",
   "main": "./dist/index",
@@ -8,8 +8,12 @@
   "dependencies": {
     "@vercel/build-utils": "^2.3.1",
     "fs-extra": "^9.0.1",
-    "which": "^2.0.2"
+    "which": "^2.0.2",
+    "execa": "4.0.2"
   },
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.1",
@@ -19,7 +23,7 @@
     "typescript": "^3.9.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -R ./src/assets/ ./dist/assets/",
     "test": "rmdir /s /q .\\test\\dist_ress\\ || tsc --project ./test/tsconfig.json && node ./test/dist_ress/test.js"
   }
 }

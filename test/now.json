@@ -3,12 +3,7 @@
     "builds": [
         {
             "src": "**/*.ts",
-            "use": "@otogira/now-denolis"
+            "use": "vercel-deno"
         }
-    ],
-    "build": {
-        "env": {
-            "DENO_TSCONFIG": "./tsconfig.json"
-        }
-    }
+    ]
 }

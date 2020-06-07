@@ -77,7 +77,7 @@ if (Deno.build.os === 'linux') {
       await new Promise(resolve => setTimeout(resolve, 20000));
       for (let i = 0; i < 4; i++) {
         try {
-          const req = await fetch(`http://localhost:3000/api/version`);
+          const req = await fetch(`http://localhost:3000/`);
           if (req.ok) {
             const text = await req.text();
             assertStrContains(text, 'Welcome to deno');
