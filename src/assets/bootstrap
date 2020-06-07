@@ -17,7 +17,7 @@ fi
 # Potentially this could be overwritten HOWEVER several permissions are required for bootstrap.
 # FIXME should this simply be -A?
 # FIXME can plugins work?? (If so, it should be documented.)
-DENO_FLAGS=${DENO_FLAGS-}
+DENO_FLAGS=${DENO_FLAGS-"--allow-all"}
 DENO_CACHE_FLAGS=""
 
 # For unstable flags we must pass --unstable
@@ -69,8 +69,8 @@ function error {
 
 # If the script fails we try and determine why.
 function investigate {
-  [ -f $SCRIPT_DIR/bin/deno ] \
-   || error "missing deno executable"
+  # [ -f $SCRIPT_DIR/bin/deno ] \
+  #  || error "missing deno executable"
 
   deno eval 'Deno.version.deno' \
    || error "bad deno executable"

@@ -1,14 +1,7 @@
-cofig support:
-- DENO_CONFIG
-- DENO_UNSTABLE
-- DENO_FLAG
+# vercel-deno
+> This runtime is currently on development and might be broken on some specific cases specified in the Known Limitation section.
 
-# now-denolis
-> Please do not use it outisde of experimental level. 
-
-Run Deno with custom config on `vercel`. 🦕🔧 + λ = ❤️
-
-Basically now-deno with an option to use your own `tsconfig.json` 
+Run Deno runtime on `vercel`. 🦕 + λ + 🔼 = ❤️
 
 ## Usage
 
@@ -17,24 +10,61 @@ Basically now-deno with an option to use your own `tsconfig.json`
 {
   "functions": {
     "api/**/*.{ts,tsx}": {
-      "runtime": "@otogira/now-denolis@0.4.5"
+      "runtime": "vercel-deno"
     }
   },
-  "build":{ #required
+  "build":{
     "env":{
-      "DENO_VERSION":"1.0.0 OR latest",
-      "DENO_TSCONFIG":"./tsconfig.json" #add_this_line
+      "DENO_VERSION":"1.0.5 OR latest",
+      "DENO_TSCONFIG":"tsconfig.json",
+      "DENO_FLAGS":"--allow-read", 
+      "DENO_UNSTABLE":true
     }
   }
 }
 ```
 
-Note: You need `vercel` v17.x or above to use the above configuration.
+```ts
+// hello.ts
 
-## Use case
-- Custom React SSR that require adding `jsx:react` variable in the config
-- Overriding [defafult config](https://deno.land/manual/getting_started/typescript) from deno
-- Migrating from other framework that heavily use custom config
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context
+} from "https://deno.land/x/lambda/mod.ts";
+
+export async function handler(
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> {
+  return {
+    body: `Welcome to deno ${Deno.version.deno} 🦕`,
+    headers: { "content-type": "text/html;charset=utf8" },
+    statusCode: 200
+  };
+}
+```
+
+## Available config ( with default value )
+```
+DENO_VERSION : "latest"
+DENO_TSCONFIG : ""
+DENO_FLAGS : "--allow-all"
+DENO_UNSTABLE : false
+```
+
+Note: `vercel` v17.x or above are required to use the above configuration.
+
+## Known limitation
+- Limited to AWS Lambda gateway
+- Unable to send response with binary files
+- only works on linux, for now.
+
+## TODO
+- [ ] Suport Now Launcher
+- [ ] Support base64 conversion for binary files response
+- [ ] implement caching
+- [ ] add support for windows and macos
 
 ## Credits
 - [deno-lambda](https://github.com/hayd/deno-lambda) by [Andy Hayden](https://github.com/hayd)

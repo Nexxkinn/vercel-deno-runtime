@@ -2,7 +2,7 @@ import {
   readJson,
   writeJson,
   ensureDir,
-} from 'https://deno.land/std/fs/mod.ts';
+} from 'https://deno.land/std@0.55.0/fs/mod.ts';
 
 const sha = Deno.env.get('GITHUB_SHA');
 if (!sha) {
@@ -19,7 +19,7 @@ pkg.version = tag;
 await writeJson('package.json', pkg, { spaces: 2 });
 
 const now: any = await readJson('test/now.json');
-now.builds['**/*.ts'].runtime = `${name}@${tag}`;
+now.builds[0].use = `${name}@${tag}`;
 await writeJson('test/now.json', now, { spaces: 2 });
 await ensureDir('test/.vercel');
 await writeJson('test/.vercel/project.json', {
