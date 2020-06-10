@@ -2,7 +2,6 @@ import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/b
 import { stat, readdir, readFile, writeFile, move } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
-import which from "which";
 import { DenoVersion } from "../types";
 
 export function parseDenoVersion(version: string): DenoVersion {
@@ -17,7 +16,7 @@ export function parseDenoVersion(version: string): DenoVersion {
   };
 }
 
-export async function getdenoFiles( workPath: string, isdev:boolean ): Promise<Files> {
+export async function getdenoFiles(workPath:string,isDev:Boolean): Promise<Files> {
   console.log("get deno binary files")
 
   const DENO_LATEST = "latest";
@@ -26,11 +25,19 @@ export async function getdenoFiles( workPath: string, isdev:boolean ): Promise<F
       ? `https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip`
       : `https://github.com/denoland/deno/releases/download/v${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip`;
 
-  const denobinDir  = join(workPath,'.deno/bin/');
-  const denozipPath = join(denobinDir,'deno.zip');
-  let   denoPath    = join(denobinDir,'deno');
+  const denobinDir   = join(workPath,'.deno/bin/');
+  const denozipPath  = join(denobinDir,'deno.zip');
+  let   denoPath     = '';
+  // check if local deno binary exists
+  if(isDev) {
+    try {
+      const checklocalDeno = await execa('which',['deno'],{stderr:'ignore'});
+      denoPath = checklocalDeno.stdout;
+    }
+    catch(e) {};
+  }
 
-  if (!isdev) {
+  if (!denoPath) {
     try {
       console.log(`downloading deno ${DENO_VERSION}`)
       await execa("curl", ['--location','--create-dirs','--output', denozipPath, DOWNLOAD_URL],{ stdio: 'pipe' });
@@ -44,15 +51,13 @@ export async function getdenoFiles( workPath: string, isdev:boolean ): Promise<F
 
       console.log(`remove deno.zip`);
       await execa("rm",[denozipPath],{ stdio: 'pipe' });
+      denoPath = join(denobinDir,'deno');
     } catch (err) {
       console.log(err);
       throw new Error(err);
     }
-  } else {
-    // assume it is dev build
-    console.log('using local deno binary')
-    denoPath = await which("deno");
-  }
+  } 
+  else console.log('using local deno binary')
 
   return {
     ".deno/bin/deno": new FileFsRef({
@@ -66,10 +71,7 @@ export async function getdenoFiles( workPath: string, isdev:boolean ): Promise<F
 export async function getbootFiles():Promise<Files>{
   console.log('get bootstrap')
   const bootstrapPath = join(__dirname, "../boot/bootstrap");
-  let runtimefiles:Files = await glob("**/*.ts",{ cwd: join(__dirname, '../boot') },"boot");
-
   return {
-    ...runtimefiles,
     bootstrap: new FileFsRef({
       mode: 0o755,
       fsPath: bootstrapPath,
@@ -80,21 +82,22 @@ export async function getbootFiles():Promise<Files>{
 /**
  * returns .deno files 
  */
-export async function getgenFiles(opts:BuildOptions, downloadedFiles:DownloadedFiles, bootFiles:Files, denoFiles:Files):Promise<Files>{
+export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:DownloadedFiles, denoFiles:Files){
   
   console.log(`Caching imports for ${opts.entrypoint}`)
   // TODO: create separate function to parse user ENV values
   const tsconfig = process.env.DENO_CONFIG ? [`-c`,`${downloadedFiles[process.env.DENO_CONFIG].fsPath}`] : [];
 
   const {workPath,entrypoint} = opts;
-  const runtimePath = 'boot/runtime.ts';
   const denobinPath = '.deno/bin/deno';
-  const denobin   = denoFiles[denobinPath].fsPath;
-  const runtime   = bootFiles[runtimePath].fsPath;
-  const entry     = downloadedFiles[entrypoint].fsPath;
+  const runtimePath = join(__dirname,'../boot/runtime.ts');
+  const runtbundled = join(workPath,'runtime.js');
+  const denobin     = denoFiles[denobinPath].fsPath;
+  const entry       = downloadedFiles[entrypoint].fsPath;
 
-  if(denobin && runtime) {
-    await execa(denobin,['cache',...tsconfig,entry,runtime],
+  if(denobin) {
+    await execa(denobin,['bundle',runtimePath,runtbundled],{ env: { DENO_DIR:join(workPath,'.deno/') }});
+    await execa(denobin,['cache',...tsconfig,entry],
       {
         env: { DENO_DIR:join(workPath,'.deno/') },
         stdio: 'ignore',
@@ -128,8 +131,14 @@ export async function getgenFiles(opts:BuildOptions, downloadedFiles:DownloadedF
   
   const cwd = join(workPath,'.deno','gen','file',workPath);
   const aws_task = join(workPath,'.deno','gen','file','var','task');
-  move(cwd,join(workPath,aws_task))
-  return await glob("**/*",{cwd:join(workPath,'.deno')}, '.deno');
+  await move(cwd,aws_task,{overwrite:true});
+  const cacheFiles = await glob("**/**",{cwd:join(workPath,'.deno'),ignore:['bin/**']}, '.deno');
+  return {
+    ...cacheFiles,
+    'runtime.js':new FileFsRef ({
+      fsPath: runtbundled
+    })
+  }
 }
 
 interface Graph {
