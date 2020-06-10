@@ -1,16 +1,6 @@
-import {
-    APIGatewayProxyEvent,
-    APIGatewayProxyResult,
-    Context
-  } from "https://deno.land/x/lambda/mod.ts";
+import { NowRequest, NowResponse } from "./nowHandler.ts";
   
-  export async function handler(
-    event: APIGatewayProxyEvent,
-    context: Context
-  ): Promise<APIGatewayProxyResult> {
-    return {
-      body: `Welcome to deno ${Deno.version.deno} 🦕`,
-      headers: { "content-type": "text/html;charset=utf8" },
-      statusCode: 200
-    };
-  }
+export default async function handler(req:NowRequest,res:NowResponse) {
+  res.headers = new Headers({ "content-type": "text/html;charset=utf8" });
+  res.statuscode(200).send(`Welcome to deno ${Deno.version.deno} 🦕`);
+}

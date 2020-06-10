@@ -1,7 +1,7 @@
 # vercel-deno
 > This runtime is currently on development and might be broken on some specific cases specified in the Known Limitation section.
 
-Run Deno runtime on `vercel`. 🦕 + λ + 🔼 = ❤️
+Run Deno runtime on `vercel`. 🦕 + ▲ = ❤️
 
 ## Usage
 
@@ -68,4 +68,5 @@ Note: `vercel` v17.x or above are required to use the above configuration.
 
 ## Credits
 - [deno-lambda](https://github.com/hayd/deno-lambda) by [Andy Hayden](https://github.com/hayd)
+- [vercel-deno](https://github.com/TooTallNate/vercel-deno) by [TooTallNate](https://github.com/TooTallNate)
 - [now-deno](https://github.com/lucacasonato/now-deno) by [lucacasonato](https://github.com/lucacasonato)
