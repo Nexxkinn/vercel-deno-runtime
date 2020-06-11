@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$LAMBDA_TASK_ROOT"
+export DENO_DIR="$LAMBDA_TASK_ROOT/.deno"
+export PATH="$DENO_DIR/bin:$PATH"
+export NO_COLOR=1
+
+DENO_FLAGS=${DENO_FLAGS:---allow-env --allow-net --allow-read --allow-write}
+DENO_CONFIG=${DENO_CONFIG-}
+
+if [[ -n "${DENO_UNSTABLE-}" ]]; then
+  DENO_FLAGS="$DENO_FLAGS --unstable"
+fi
+
+if [[ -n "${DENO_CONFIG}" ]]; then
+  DENO_FLAGS="$DENO_FLAGS -c $DENO_CONFIG"
+fi
+
+exec deno run ${DENO_FLAGS} "./boot/runtime.ts"

@@ -1,5 +1,5 @@
 {
-  "name": "vercel-deno",
+  "name": "vercel-deno-runtime",
   "version": "0.1.0",
   "description": "run deno on vercel",
   "main": "./dist/index",
@@ -12,7 +12,8 @@
     "execa": "4.0.2"
   },
   "files": [
-    "dist"
+    "dist",
+    ".github/README.md"
   ],
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
@@ -23,7 +24,7 @@
     "typescript": "^3.9.2"
   },
   "scripts": {
-    "build": "tsc && cp -R ./src/assets/ ./dist/assets/",
+    "build": "tsc && cp -R ./src/boot/ ./dist/boot/",
     "test": "rmdir /s /q .\\test\\dist_ress\\ || tsc --project ./test/tsconfig.json && node ./test/dist_ress/test.js"
   }
 }

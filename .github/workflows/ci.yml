@@ -2,7 +2,7 @@ name: ci
 
 on: 
   push:
-    branches: [ master, playground ]
+    branches: [ master, dev ]
 
 env:
   PACKAGE_NAME: 'vercel-deno-dev'

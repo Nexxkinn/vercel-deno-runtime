@@ -2,8 +2,8 @@
     "version": 2,
     "builds": [
         {
-            "src": "**/*.ts",
-            "use": "vercel-deno"
+            "src": "index.ts",
+            "use": "vercel-deno-runtime"
         }
     ]
 }
