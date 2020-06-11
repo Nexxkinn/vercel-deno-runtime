@@ -102,7 +102,13 @@ async function initialize() {
 
             let body = await bufr.readFull(new Uint8Array(bufr.buffered()));
             if (!body) throw new Deno.errors.UnexpectedEof();
-            console.log(base64.fromUint8Array(body));
+            console.log({
+                buflen:bufr.buffered(),
+                bufsize:bufr.size(),
+                outputlen:output.length,
+                outputcap:output.capacity,
+                length:body.length,
+                encoded:base64.fromUint8Array(body)});
 
             await req.finalize();
 
