@@ -102,10 +102,13 @@ async function initialize() {
             }
 
             let buff = new Uint8Array(bufr.size());
-            const size = await bufr.read(buff)||output.capacity;
+            const size = await bufr.read(buff)||bufr.size();
             const body = buff.slice(0,size);
             if (!body) throw new Deno.errors.UnexpectedEof();
-            
+            console.log({
+                outlen:output.length,
+                bodylen:body.byteLength,
+            })
             await req.finalize();
 
             result = {
