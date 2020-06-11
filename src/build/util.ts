@@ -1,5 +1,5 @@
 import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils/dist";
-import { stat, readdir, readFile, writeFile, move, copy } from "fs-extra";
+import { stat, readdir, readFile, writeFile, move } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
 import { DenoVersion } from "../types";

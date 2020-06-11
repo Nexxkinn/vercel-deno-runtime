@@ -37,6 +37,7 @@ export default async function build(opts: BuildOptions) {
 
   const lambda = await createLambda({
     files: {
+      ...downloadedFiles,
       ...cacheFiles,
       ...bootFiles,
       ...denoFiles
