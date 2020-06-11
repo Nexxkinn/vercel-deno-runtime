@@ -50,6 +50,8 @@ async function initialize() {
             const input = new Deno.Buffer(base64.toUint8Array(data.body || ''));
             const output = new Deno.Buffer();
                   output.grow(33554432); // Initialize memory size to 2^25 ~~ 33.5 MB
+                                         // Default buffer size: 4096 Bytes.
+
             const req:NowRequest = new ServerRequest();
             req.r = new BufReader(input);
             req.w = new BufWriter(output);
@@ -85,19 +87,14 @@ async function initialize() {
                 else throw new Deno.errors.UnexpectedEof();
             }
             
-            // The actual output is raw HTTP message,
-            // so we will parse it
-            // - Headers ( statuscode default to 200 )
-            // - Message
-            
             // TODO: dynamically determine buffer size.
-            // output.length is not the length of the portion written.
+            // output.length has a mismatch size of a few hundret bytes compared to boy.bytlength.
             // not including size argument will make bufReader use default size 4096 Bytes.
-            console.log({outlen:output.length})
+            // console.log({outlen:output.length})
             const bufr = new BufReader(output,output.length);
             const tp = new TextProtoReader(bufr);
             
-            const firstLine = await tp.readLine() || 'HTTP/1.1 200 OK'; // e.g. "HTTP/1.1 200 OK"
+            const firstLine = await tp.readLine() || 'HTTP/2.0 200 OK'; // e.g. "HTTP/1.1 200 OK"
             const statuscode = res ? res.status || 200 : parseInt(firstLine.split(' ', 2)[1], 10); // get statuscode either from res or req.
             const headers = await tp.readMIMEHeader() || new Headers();
             const headersObj: { [name: string]: string } = {};
@@ -109,10 +106,10 @@ async function initialize() {
             const size = await bufr.read(buff)||bufr.size();
             const body = buff.slice(0,size);
             if (!body) throw new Deno.errors.UnexpectedEof();
-            console.log({
-                outlen:output.length,
-                bodylen:body.byteLength,
-            })
+            // console.log({
+            //     outlen:output.length,
+            //     bodylen:body.byteLength,
+            // })
             await req.finalize();
 
             result = {
