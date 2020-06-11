@@ -139,7 +139,7 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
   const cwd = join(workPath,'.deno','gen','file',workPath);
   const aws_task = join(workPath,'.deno','gen','file','var','task');
   await move(cwd,aws_task,{overwrite:true});
-  return await glob(".deno/**",{ ignore:[".deno/bin/**"], cwd:{workPath}});
+  return await glob(".deno/**",workPath);
 }
 
 async function* getGraphFiles(dir: string): AsyncIterable<string> {
