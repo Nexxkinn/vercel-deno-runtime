@@ -49,7 +49,7 @@ async function initialize() {
             const data = JSON.parse(event.body || '');
             const input = new Deno.Buffer(base64.toUint8Array(data.body || ''));
             const output = new Deno.Buffer();
-                  output.grow(33554432); // 2^25 ~~ 33.5 MB
+                  output.grow(33554432); // Initialize memory size to 2^25 ~~ 33.5 MB
             const req:NowRequest = new ServerRequest();
             req.r = new BufReader(input);
             req.w = new BufWriter(output);
@@ -89,7 +89,11 @@ async function initialize() {
             // so we will parse it
             // - Headers ( statuscode default to 200 )
             // - Message
-
+            
+            // TODO: dynamically determine buffer size.
+            // output.length is not the length of the portion written.
+            // not including size argument will make bufReader use default size 4096 Bytes.
+            console.log({outlen:output.length})
             const bufr = new BufReader(output,output.length);
             const tp = new TextProtoReader(bufr);
             
@@ -127,7 +131,7 @@ async function initialize() {
 
 async function invocationResponse(result:any,context:LambdaContext) {
     console.log("invoke Response")
-    console.log({result,context})
+    console.log({result})
     const res = await LambdaFetch(`invocation/${context.awsRequestId}/response`, {
 		method: 'POST',
 		headers: {
