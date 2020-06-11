@@ -1,4 +1,4 @@
-import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/build-utils/dist";
+import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils/dist";
 import { stat, readdir, readFile, writeFile, move, copy } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
@@ -76,8 +76,8 @@ export async function getdenoFiles(workPath:string,isDev:Boolean): Promise<Files
 export async function getbootFiles(workPath:string):Promise<Files>{
   console.log('get bootstrap')
   const bootstrapPath = join(__dirname, "../boot/bootstrap");
-  await copy(join(__dirname,'../boot'),join(workPath,'boot'));
-  const runtimeFiles   = await glob('boot/*.ts',workPath);
+  const runtimeGlobs   = await glob("boot/*.ts",{cwd:join(__dirname,"../")});
+  const runtimeFiles   = await download(runtimeGlobs,workPath);
   return {
     ...runtimeFiles,
     bootstrap: new FileFsRef({
@@ -139,6 +139,7 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
   const cwd = join(workPath,'.deno','gen','file',workPath);
   const aws_task = join(workPath,'.deno','gen','file','var','task');
   await move(cwd,aws_task,{overwrite:true});
+  return await glob(".deno/**/*",{ignore:[".deno/bin/**"]});
 }
 
 async function* getGraphFiles(dir: string): AsyncIterable<string> {
