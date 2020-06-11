@@ -55,9 +55,9 @@ async function initialize() {
             req.headers = new Headers();
             req.method = data.method;
             req.url = data.path;
-            req.proto = 'HTTP/1.1';
-            req.protoMinor = 1;
-            req.protoMajor = 1;
+            req.proto = 'HTTP/2.0';
+            req.protoMinor = 0;
+            req.protoMajor = 2;
 
             for (const [name, value] of Object.entries(data.headers)) {
                 if (typeof value === 'string') {
@@ -100,7 +100,8 @@ async function initialize() {
                 headersObj[name] = value;
             }
 
-            const body = await bufr.readFull(new Uint8Array(bufr.buffered()));
+            const body = new Uint8Array(bufr.size());
+            const read = await bufr.readFull(body);
             if (!body) throw new Deno.errors.UnexpectedEof();
 
             await req.finalize();
