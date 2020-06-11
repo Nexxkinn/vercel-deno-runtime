@@ -90,7 +90,7 @@ async function initialize() {
             // - Headers ( statuscode default to 200 )
             // - Message
 
-            const bufr = new BufReader(output);
+            const bufr = new BufReader(output,output.capacity);
             const tp = new TextProtoReader(bufr);
             
             const firstLine = await tp.readLine() || 'HTTP/1.1 200 OK'; // e.g. "HTTP/1.1 200 OK"
