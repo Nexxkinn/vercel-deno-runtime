@@ -49,6 +49,7 @@ async function initialize() {
             const data = JSON.parse(event.body || '');
             const input = new Deno.Buffer(base64.toUint8Array(data.body || ''));
             const output = new Deno.Buffer();
+                  output.grow(33554432); // 2^25 ~~ 33.5 MB
             const req:NowRequest = new ServerRequest();
             req.r = new BufReader(input);
             req.w = new BufWriter(output);
@@ -100,14 +101,11 @@ async function initialize() {
                 headersObj[name] = value;
             }
 
+            // TODO
             let body = await bufr.readFull(new Uint8Array(bufr.buffered()));
             if (!body) throw new Deno.errors.UnexpectedEof();
             console.log(res.body);
             console.log(body);
-            console.log({
-                bufsize:bufr.size(),
-                bodylength:body.byteLength,
-            });
 
             await req.finalize();
 
