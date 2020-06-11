@@ -1,8 +1,13 @@
-import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils/dist";
-import { stat, readdir, readFile, writeFile, move } from "fs-extra";
+import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/build-utils/dist";
+import { stat, readdir, readFile, writeFile, move, copy } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
 import { DenoVersion } from "../types";
+
+interface Graph {
+	deps: string[];
+	version_hash: string;
+}
 
 export function parseDenoVersion(version: string): DenoVersion {
   if (version === "latest") return { major: 999, minor: 999, build: 999 };
@@ -71,8 +76,8 @@ export async function getdenoFiles(workPath:string,isDev:Boolean): Promise<Files
 export async function getbootFiles(workPath:string):Promise<Files>{
   console.log('get bootstrap')
   const bootstrapPath = join(__dirname, "../boot/bootstrap");
-  const runtimeGlob   = await glob('**/*.ts',{cwd:join(__dirname,'../boot')},'boot')
-  const runtimeFiles  = await download(runtimeGlob,join(workPath));
+  await copy(join(__dirname,'../boot'),join(workPath,'boot'));
+  const runtimeFiles   = await glob('boot/*.ts',workPath);
   return {
     ...runtimeFiles,
     bootstrap: new FileFsRef({
@@ -116,7 +121,7 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
 		for (let i = 0; i < graph.deps.length; i++) {
 			const dep = graph.deps[i];
 			if (dep.startsWith(workPathUri)) {
-				const updated = `file:///var/task${dep.substring(
+				const updated = `file:///var/task/${dep.substring(
 					workPathUri.length
 				)}`;
 				graph.deps[i] = updated;
@@ -134,12 +139,6 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
   const cwd = join(workPath,'.deno','gen','file',workPath);
   const aws_task = join(workPath,'.deno','gen','file','var','task');
   await move(cwd,aws_task,{overwrite:true});
-  return await glob("**/**",{cwd:join(workPath,'.deno'),ignore:['bin/**']}, '.deno');
-}
-
-interface Graph {
-	deps: string[];
-	version_hash: string;
 }
 
 async function* getGraphFiles(dir: string): AsyncIterable<string> {

@@ -39,7 +39,7 @@ async function initialize() {
             
             // import lambda function handler dynamically once.
             if (!handler) {
-                const module = await import(`./${_HANDLER}`);
+                const module = await import(`../${_HANDLER}`);
                 handler = module.default;
                 if (!handler) {
                     throw new Error('Failed to load handler function');

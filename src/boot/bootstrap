@@ -17,4 +17,4 @@ if [[ -n "${DENO_CONFIG}" ]]; then
   DENO_FLAGS="$DENO_FLAGS -c $DENO_CONFIG"
 fi
 
-exec deno run ${DENO_FLAGS} "runtime.ts"
+exec deno run ${DENO_FLAGS} "./boot/runtime.ts"
