@@ -40,7 +40,6 @@ export default async function build(opts: BuildOptions) {
   const lambda = await createLambda({
     files: {
       ...await glob("**",workPath),
-      ...bootFiles,
       ...denoFiles
     },
     environment: {
