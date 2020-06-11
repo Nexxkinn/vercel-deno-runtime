@@ -1,4 +1,4 @@
-import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/build-utils/dist";
+import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils/dist";
 import { stat, readdir, readFile, writeFile, move } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
@@ -68,10 +68,13 @@ export async function getdenoFiles(workPath:string,isDev:Boolean): Promise<Files
 }
 
 
-export async function getbootFiles():Promise<Files>{
+export async function getbootFiles(workPath:string):Promise<Files>{
   console.log('get bootstrap')
   const bootstrapPath = join(__dirname, "../boot/bootstrap");
+  const runtimeGlob   = await glob('**/*.ts',{cwd:join(__dirname,'../boot')},'boot')
+  const runtimeFiles  = await download(runtimeGlob,join(workPath));
   return {
+    ...runtimeFiles,
     bootstrap: new FileFsRef({
       mode: 0o755,
       fsPath: bootstrapPath,
@@ -82,7 +85,7 @@ export async function getbootFiles():Promise<Files>{
 /**
  * returns .deno files 
  */
-export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:DownloadedFiles, denoFiles:Files){
+export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:DownloadedFiles, denoFiles:Files, bootFiles:Files){
   
   console.log(`Caching imports for ${opts.entrypoint}`)
   // TODO: create separate function to parse user ENV values
@@ -90,14 +93,13 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
 
   const {workPath,entrypoint} = opts;
   const denobinPath = '.deno/bin/deno';
-  const runtimePath = join(__dirname,'../boot/runtime.ts');
-  const runtbundled = join(workPath,'runtime.js');
+  const runtimePath = 'boot/runtime.ts';
   const denobin     = denoFiles[denobinPath].fsPath;
+  const runtime     = bootFiles[runtimePath].fsPath;
   const entry       = downloadedFiles[entrypoint].fsPath;
 
-  if(denobin) {
-    await execa(denobin,['bundle',runtimePath,runtbundled],{ env: { DENO_DIR:join(workPath,'.deno/') }});
-    await execa(denobin,['cache',...tsconfig,entry],
+  if(denobin && runtime) {
+    await execa(denobin,['cache',...tsconfig,runtime,entry],
       {
         env: { DENO_DIR:join(workPath,'.deno/') },
         stdio: 'ignore',
@@ -132,13 +134,7 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
   const cwd = join(workPath,'.deno','gen','file',workPath);
   const aws_task = join(workPath,'.deno','gen','file','var','task');
   await move(cwd,aws_task,{overwrite:true});
-  const cacheFiles = await glob("**/**",{cwd:join(workPath,'.deno'),ignore:['bin/**']}, '.deno');
-  return {
-    ...cacheFiles,
-    'runtime.js':new FileFsRef ({
-      fsPath: runtbundled
-    })
-  }
+  return await glob("**/**",{cwd:join(workPath,'.deno'),ignore:['bin/**']}, '.deno');
 }
 
 interface Graph {
