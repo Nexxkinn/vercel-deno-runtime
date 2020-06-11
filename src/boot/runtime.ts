@@ -101,11 +101,18 @@ async function initialize() {
                 headersObj[name] = value;
             }
 
-            // TODO
-            let body = await bufr.readFull(new Uint8Array(bufr.buffered()));
+            let buff = new Uint8Array(output.capacity);
+            const size = await bufr.read(buff)||output.capacity;
+            const body = buff.slice(0,size);
+
             if (!body) throw new Deno.errors.UnexpectedEof();
             console.log(res.body);
             console.log(body);
+            console.log({
+                bufrlen:buff.byteLength,
+                outlen:output.capacity - output.length,
+                size:size
+            })
 
             await req.finalize();
 
