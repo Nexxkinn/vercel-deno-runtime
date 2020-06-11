@@ -1,6 +1,6 @@
 {
   "name": "vercel-deno-runtime",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "run deno on vercel",
   "main": "./dist/index",
   "author": "Nexxkinn",
