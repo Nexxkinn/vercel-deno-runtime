@@ -90,7 +90,7 @@ async function initialize() {
             // - Headers ( statuscode default to 200 )
             // - Message
 
-            const bufr = new BufReader(output,output.capacity);
+            const bufr = new BufReader(output,output.length);
             const tp = new TextProtoReader(bufr);
             
             const firstLine = await tp.readLine() || 'HTTP/1.1 200 OK'; // e.g. "HTTP/1.1 200 OK"
@@ -101,19 +101,11 @@ async function initialize() {
                 headersObj[name] = value;
             }
 
-            let buff = new Uint8Array(output.capacity);
+            let buff = new Uint8Array(bufr.size());
             const size = await bufr.read(buff)||output.capacity;
             const body = buff.slice(0,size);
-
             if (!body) throw new Deno.errors.UnexpectedEof();
-            console.log(res.body);
-            console.log(body);
-            console.log({
-                bufrlen:buff.byteLength,
-                outlen:output.capacity - output.length,
-                size:size
-            })
-
+            
             await req.finalize();
 
             result = {
