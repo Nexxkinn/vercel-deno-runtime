@@ -100,9 +100,9 @@ async function initialize() {
                 headersObj[name] = value;
             }
 
-            let body = new Uint8Array(bufr.buffered());
-            let read = await bufr.readFull(body);
+            let body = await bufr.readFull(new Uint8Array(bufr.buffered()));
             if (!body) throw new Deno.errors.UnexpectedEof();
+            console.log(base64.fromUint8Array(body));
 
             await req.finalize();
 
