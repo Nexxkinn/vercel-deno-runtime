@@ -44,7 +44,6 @@ Note: `vercel` v17.x or above are required to use the above configuration.
 
 ## TODO
 - [x] Suport Now Launcher
-- [x] Support base64 conversion for binary files response
 - [ ] implement caching for downloading deno 
 - [ ] add support for windows and macos
 
