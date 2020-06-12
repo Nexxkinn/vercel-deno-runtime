@@ -24,7 +24,7 @@
   "scripts": {
     "clean":"if exist .\\dist\\ ( rmdir /s/q .\\dist\\ )",
     "build:win":"tsc && (robocopy .\\src\\boot .\\dist\\boot\\ * /s) ^& IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0",
-    "build": " npm run clean && tsc && cp -R ./src/boot/. ./dist/boot/",
+    "build": "tsc && cp -R ./src/boot/. ./dist/boot/",
     "publish": "npm run clean && npm run build:win"
   }
 }
