@@ -1,8 +1,7 @@
 import {
   download,
   BuildOptions,
-  createLambda,
-  glob
+  createLambda
 } from "@vercel/build-utils";
 import fs from "fs-extra";
 import { getdenoFiles, getbootFiles, CacheEntryPoint } from "./util";
@@ -21,7 +20,7 @@ export default async function build(opts: BuildOptions) {
   // configure environment variable
   const denoFiles = await getdenoFiles(workPath,meta.isDev || false);
   const bootFiles = await getbootFiles(workPath);
-  await CacheEntryPoint(opts, downloadedFiles,denoFiles,bootFiles);
+  const cacheFiles = await CacheEntryPoint(opts, downloadedFiles,denoFiles,bootFiles);
 
   // console.log({downloadedFiles, denoFiles,bootFiles,genFiles})
 
@@ -31,7 +30,6 @@ export default async function build(opts: BuildOptions) {
   //    - /gen
   //    - /bin/deno
   //    - *.d.ts 
-  // - src
   // - bootstrap
   // - runtime.ts
   // - nowHandler.ts
@@ -39,7 +37,8 @@ export default async function build(opts: BuildOptions) {
 
   const lambda = await createLambda({
     files: {
-      ...await glob("**",workPath),
+      ...downloadedFiles,
+      ...cacheFiles,
       ...bootFiles,
       ...denoFiles
     },

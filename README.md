@@ -1,4 +1,4 @@
-# vercel-deno
+# vercel-deno-runtime
 > This runtime is currently on development and might be broken on some specific cases specified in the Known Limitation section.
 
 Deno runtime for `vercel`.
@@ -32,7 +32,7 @@ export default async function handler(req:NowRequest,res:NowResponse) {
 }
 ```
 
-## Available config ( with default value )
+## Default configs
  - `DENO_VERSION` : "latest"
  - `DENO_CONFIG` : ""
  - `DENO_UNSTABLE` : false
@@ -44,7 +44,6 @@ Note: `vercel` v17.x or above are required to use the above configuration.
 
 ## TODO
 - [x] Suport Now Launcher
-- [x] Support base64 conversion for binary files response
 - [ ] implement caching for downloading deno 
 - [ ] add support for windows and macos
 
