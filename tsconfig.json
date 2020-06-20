@@ -25,6 +25,7 @@
         "node_modules",
         "test",
         "src/boot/*",
+        "src/dev/*",
         "**/node_modules/*"
     ]
 }

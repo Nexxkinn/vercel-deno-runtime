@@ -4,9 +4,9 @@ import {
   ensureDir,
 } from 'https://deno.land/std@0.55.0/fs/mod.ts';
 
-const sha = Deno.env.get('GITHUB_SHA');
+const sha = Deno.env.get('CI_COMMIT_SHA');
 if (!sha) {
-  throw Error('No GITHUB_SHA specified.');
+  throw Error('No CI_COMMIT_SHA specified.');
 }
 const name = Deno.env.get('PACKAGE_NAME');
 if (!name) {

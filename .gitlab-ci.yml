@@ -1,0 +1,38 @@
+stages:
+  - build
+  - version-dev
+  - publish-dev
+
+variables:
+    PACKAGE_NAME: 'vercel-deno-dev'
+
+default:
+  image: node:current-alpine
+
+build:
+  stage: build
+  script:
+    - yarn install
+    - yarn build
+  artifacts:
+    paths:
+      - dist/
+
+version:
+  stage: version-dev
+  only:
+    - dev
+  image: lucemans/docker-deno:alpine
+  script:
+    - deno run --unstable --allow-env --allow-read --allow-write .gitlab/workflows/update-version.ts
+  artifacts:
+    paths:
+      - ./
+
+publish:
+  stage: publish-dev
+  only:
+    - dev
+  script:
+    - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    - npm publish
