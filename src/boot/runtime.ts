@@ -48,9 +48,7 @@ async function initialize() {
 
             const data = JSON.parse(event.body || '');
             const input = new Deno.Buffer(base64.toUint8Array(data.body || ''));
-            const output = new Deno.Buffer();
-                  output.grow(33554432); // Initialize memory size to 2^25 ~~ 33.5 MB
-                                         // Default buffer size: 4096 Bytes.
+            const output = new Deno.Buffer(new Uint8Array(6000000)); // maximum lambda file size
 
             const req:NowRequest = new ServerRequest();
             req.r = new BufReader(input);

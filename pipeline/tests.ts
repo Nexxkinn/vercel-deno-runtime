@@ -1,11 +1,24 @@
 import {
   assert,
   assertStrContains,
-} from 'https://deno.land/std@v0.42.0/testing/asserts.ts';
-import { join } from 'https://deno.land/std@v0.42.0/path/mod.ts';
+} from 'https://deno.land/std@v0.55.0/testing/asserts.ts';
+import {
+  readJson,
+  writeJson,
+  ensureDir,
+} from 'https://deno.land/std@0.55.0/fs/mod.ts';
+import { join } from 'https://deno.land/std@v0.55.0/path/mod.ts';
 
 const isWin = Deno.build.os == 'windows';
-const runNow = isWin ? ['now.cmd'] : ['npx', 'now'];
+const runNow = isWin ? ['now.cmd'] : ['npx', 'vercel'];
+
+const now: any = await readJson('test/now.json');
+await writeJson('test/now.json', now, { spaces: 2 });
+await ensureDir('test/.vercel');
+await writeJson('test/.vercel/project.json', {
+  projectId: 'QmNww3o6cGyoLMEbB8K5AHm9ozEQGbybyhSYhTZc4ATy5j',
+  orgId: '1Msr0JfY7YsvfjsLqayd0tWC',
+});
 
 // Deno.test({
 //   name: 'deploy to now',
