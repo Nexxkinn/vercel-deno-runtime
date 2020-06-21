@@ -3,7 +3,7 @@
     "builds": [
         {
             "src": "index.ts",
-            "use": "vercel-deno-runtime"
+            "use": "vercel-deno-dev"
         }
     ]
 }

@@ -4,3 +4,4 @@ dist
 .vscode
 .yarnclean
 package-lock.json
+test/.vercel/

@@ -1,12 +1,11 @@
 {
   "name": "vercel-deno-runtime",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "run deno on vercel",
   "main": "./dist/index",
   "author": "Nexxkinn",
   "license": "MIT",
   "dependencies": {
-    "@vercel/build-utils": "^2.3.1",
     "execa": "4.0.2",
     "fs-extra": "^9.0.1"
   },
@@ -15,6 +14,7 @@
     ".github/README.md"
   ],
   "devDependencies": {
+    "@vercel/build-utils": "^2.3.1",
     "@types/fs-extra": "^9.0.1",
     "@types/node": "^14.0.1",
     "@vercel/frameworks": "^0.0.14",
@@ -22,8 +22,8 @@
     "typescript": "^3.9.2"
   },
   "scripts": {
-    "clean":"if exist .\\dist\\ ( rmdir /s/q .\\dist\\ )",
-    "build:win":"tsc && (robocopy .\\src\\boot .\\dist\\boot\\ * /s) ^& IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0",
+    "clean": "if exist .\\dist\\ ( rmdir /s/q .\\dist\\ )",
+    "build:win": "tsc && (robocopy .\\src\\boot .\\dist\\boot\\ * /s) ^& IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0",
     "build": "tsc && cp -R ./src/boot/. ./dist/boot/",
     "publish:win": "npm run clean && npm run build:win"
   }
