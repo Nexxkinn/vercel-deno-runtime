@@ -17,12 +17,3 @@ const pkg: any = await readJson('package.json');
 pkg.name = name;
 pkg.version = tag;
 await writeJson('package.json', pkg, { spaces: 2 });
-
-const now: any = await readJson('test/now.json');
-now.builds[0].use = `${name}@${tag}`;
-await writeJson('test/now.json', now, { spaces: 2 });
-await ensureDir('test/.vercel');
-await writeJson('test/.vercel/project.json', {
-  projectId: 'QmNww3o6cGyoLMEbB8K5AHm9ozEQGbybyhSYhTZc4ATy5j',
-  orgId: '1Msr0JfY7YsvfjsLqayd0tWC',
-});

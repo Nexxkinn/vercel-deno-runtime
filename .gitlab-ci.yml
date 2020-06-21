@@ -1,7 +1,7 @@
 stages:
-  - build
-  - version-dev
-  - publish-dev
+  - version
+  - build_deploy
+  - test
 
 variables:
     PACKAGE_NAME: 'vercel-deno-dev'
@@ -9,30 +9,44 @@ variables:
 default:
   image: node:current-alpine
 
-build:
-  stage: build
-  script:
-    - yarn install
-    - yarn build
-  artifacts:
-    paths:
-      - dist/
-
-version:
-  stage: version-dev
+version-dev:
+  stage: version
   only:
     - dev
   image: lucemans/docker-deno:alpine
   script:
-    - deno run --unstable --allow-env --allow-read --allow-write .gitlab/workflows/update-version.ts
+    - deno run --unstable --allow-env --allow-read --allow-write pipeline/dev-version.ts
   artifacts:
+    expire_in: 60s
     paths:
-      - ./
+      - package.json
 
-publish:
-  stage: publish-dev
+build_deploy:
+  stage: build_deploy
+  script:
+    - yarn install
+    - yarn build
+    - npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+    - npm publish
+
+test:
+  stage: test
   only:
     - dev
+  image: frolvlad/alpine-glibc:latest
   script:
-    - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-    - npm publish
+    - echo 'install node and deno'
+    - apk add nodejs
+    - apk add --update npm
+    - apk add --no-cache bash
+    - apk add --virtual .download --no-cache curl
+    - curl -fsSL https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip --output deno.zip
+    - unzip deno.zip
+    - rm deno.zip
+    - chmod 777 deno
+    - mv deno /bin/deno
+    - apk del .download
+    - echo 'install vercel...'
+    - npm i -g vercel
+    - echo 'running test...'
+    - deno test --unstable --allow-env --allow-read --allow-write --allow-net=localhost --allow-run pipeline/tests.ts
