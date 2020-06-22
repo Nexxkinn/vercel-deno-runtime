@@ -1,1 +1,1 @@
-export const version = 3;
+export default 3;
