@@ -4,4 +4,8 @@ dist
 .vscode
 .yarnclean
 package-lock.json
+<<<<<<< HEAD
 test/.vercel/
+=======
+
+>>>>>>> dev
