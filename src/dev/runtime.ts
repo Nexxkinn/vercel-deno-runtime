@@ -1,4 +1,4 @@
-import { serve } from 'https://deno.land/std@0.57.0/http/server.ts';
+import { serve } from 'https://deno.land/std/http/server.ts';
 
 function isNetAddr(v: any): v is Deno.NetAddr {
 	return v && typeof v.port === 'number';
@@ -8,7 +8,8 @@ const entrypoint = Deno.env.get('DEV_ENTRYPOINT');
 const mod = await import(`file://${entrypoint}`);
 const handler = mod.default;
 if (!handler) throw new Error(`unable to load function ${entrypoint}`);
-
+// TODO: send data to file descriptor 3 for windows.
+// https://github.com/denoland/deno/issues/6305 might solve it
 const fdPort = await Deno.open('/dev/fd/3',{read:false,write:true});
 
 const server = serve({port:0});

@@ -1,7 +1,7 @@
 import {
   assert,
   assertStrContains,
-} from 'https://deno.land/std@v0.55.0/testing/asserts.ts';
+} from 'https://deno.land/std/testing/asserts.ts';
 import {
   readJson,
   writeJson,
