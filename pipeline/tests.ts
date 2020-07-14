@@ -6,8 +6,8 @@ import {
   readJson,
   writeJson,
   ensureDir,
-} from 'https://deno.land/std@0.55.0/fs/mod.ts';
-import { join } from 'https://deno.land/std@v0.55.0/path/mod.ts';
+} from 'https://deno.land/std/fs/mod.ts';
+import { join } from 'https://deno.land/std/path/mod.ts';
 
 const isWin = Deno.build.os == 'windows';
 const runNow = isWin ? ['now.cmd'] : ['npx', 'vercel'];
