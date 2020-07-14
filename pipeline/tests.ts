@@ -1,13 +1,13 @@
 import {
   assert,
-  assertStrContains,
-} from 'https://deno.land/std/testing/asserts.ts';
+  assertStringContains,
+} from 'https://deno.land/std@0.61.0/testing/asserts.ts';
 import {
   readJson,
   writeJson,
   ensureDir,
-} from 'https://deno.land/std/fs/mod.ts';
-import { join } from 'https://deno.land/std/path/mod.ts';
+} from 'https://deno.land/std@0.61.0/fs/mod.ts';
+import { join } from 'https://deno.land/std@0.61.0/path/mod.ts';
 
 const isWin = Deno.build.os == 'windows';
 const runNow = isWin ? ['now.cmd'] : ['npx', 'vercel'];
@@ -39,8 +39,8 @@ await writeJson('test/.vercel/project.json', {
 //     const req = await fetch(`${url}/api/version`);
 //     assert(req.ok);
 //     const text = await req.text();
-//     assertStrContains(text, 'Welcome to deno');
-//     assertStrContains(text, '🦕');
+//     assertStringContains(text, 'Welcome to deno');
+//     assertStringContains(text, '🦕');
 //   },
 // });
 
@@ -70,9 +70,9 @@ await writeJson('test/.vercel/project.json', {
 //     const req = await fetch(`${url}/api/version`);
 //     assert(req.ok);
 //     const text = await req.text();
-//     assertStrContains(text, 'Welcome to deno');
-//     assertStrContains(text, '0.40.0');
-//     assertStrContains(text, '🦕');
+//     assertStringContains(text, 'Welcome to deno');
+//     assertStringContains(text, '0.40.0');
+//     assertStringContains(text, '🦕');
 //   },
 // });
 
@@ -93,8 +93,8 @@ if (Deno.build.os === 'linux') {
           const req = await fetch(`http://localhost:3000/`);
           if (req.ok) {
             const text = await req.text();
-            assertStrContains(text, 'Welcome to deno');
-            assertStrContains(text, '🦕');
+            assertStringContains(text, 'Welcome to deno');
+            assertStringContains(text, '🦕');
             proc.kill(2);
             proc.close();
             Deno.exit(0);
