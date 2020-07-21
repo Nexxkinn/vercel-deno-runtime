@@ -1,7 +1,7 @@
 import * as base64 from 'https://deno.land/x/base64/mod.ts';
-import { ServerRequest } from 'https://deno.land/std@0.61.0/http/server.ts';
-import { BufReader, BufWriter } from 'https://deno.land/std@0.61.0/io/bufio.ts';
-import { TextProtoReader } from 'https://deno.land/std@0.61.0/textproto/mod.ts';
+import { ServerRequest } from 'https://deno.land/std/http/server.ts';
+import { BufReader, BufWriter } from 'https://deno.land/std/io/bufio.ts';
+import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts';
 import { Context, APIGatewayProxyEvent } from 'https://deno.land/x/lambda/mod.ts';
 import { NowApiHandler, NowRequest, NowResponse, NowRequestCookies, NowRequestQuery } from './nowHandler.ts';
 
