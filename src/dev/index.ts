@@ -67,11 +67,11 @@ export default async function startDevServer(
 			if(file.length > 0) res({ port: Number(file) })
 		})
 	})
-	
+
 	const child = spawn(denoBinPath, args, {
 		cwd: workPath,
 		env,
-		stdio: ['ignore','ignore','ignore'], /// stdin, stdout, stderr
+		stdio: ['ignore','inherit', 'inherit'], /// stdin, stdout, stderr
 	});
 	console.log('waiting for port...');
 
