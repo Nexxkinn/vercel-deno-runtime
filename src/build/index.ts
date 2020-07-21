@@ -12,13 +12,9 @@ export default async function build(opts: BuildOptions) {
 
   console.log("downloading source files");
 
-  const downloadedFiles = await download(
-    files,
-    workPath,
-    meta,
-  );
+  const downloadedFiles = await download( files, workPath, meta );
   // configure environment variable
-  const denoFiles = await getdenoFiles(workPath,meta.isDev || false);
+  const denoFiles = await getdenoFiles(workPath);
   const bootFiles = await getbootFiles(workPath);
   const cacheFiles = await CacheEntryPoint(opts, downloadedFiles,denoFiles,bootFiles);
 
@@ -30,10 +26,10 @@ export default async function build(opts: BuildOptions) {
   //    - /gen
   //    - /bin/deno
   //    - *.d.ts 
-  // - bootstrap
-  // - runtime.ts
-  // - nowHandler.ts
-  // - helpers.ts
+  //    - boot/
+  //      - runtime.ts
+  //      - nowHandler.ts
+  //      - helpers.ts
 
   const lambda = await createLambda({
     files: {
