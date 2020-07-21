@@ -78,7 +78,6 @@ await writeJson('test/.vercel/project.json', {
 
 // TODO(lucacasonato): reenable test on macOS
 if (Deno.build.os === 'linux') {
-  console.log(Deno.env.get('NOW_TOKEN'));
   Deno.test({
     name: 'run on now dev',
     async fn() {
