@@ -15,11 +15,11 @@
   ],
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
-    "@types/node": "^14.0.1",
-    "@vercel/build-utils": "^2.3.1",
+    "@types/node": "^14.0.24",
+    "@vercel/build-utils": "^2.4.1",
     "@vercel/frameworks": "^0.0.14",
     "@vercel/routing-utils": "^1.8.2",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "clean": "if exist .\\dist\\ ( rmdir /s/q .\\dist\\ )",
