@@ -1,4 +1,4 @@
-import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils/dist";
+import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/build-utils/dist";
 import { stat, readdir, readFile, writeFile, move } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
