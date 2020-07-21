@@ -17,6 +17,7 @@ export default async function build(opts: BuildOptions) {
     workPath,
     meta,
   );
+  console.log(meta);
   // configure environment variable
   const denoFiles = await getdenoFiles(workPath,meta.isDev || false);
   const bootFiles = await getbootFiles();
