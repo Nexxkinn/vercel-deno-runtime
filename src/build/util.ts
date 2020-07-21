@@ -91,13 +91,12 @@ export async function getdenoFiles(workPath:string,isDev:Boolean): Promise<Files
 }
 
 
-export async function getbootFiles(workPath:string):Promise<Files>{
+export async function getbootFiles():Promise<Files>{
   console.log('get bootstrap')
   const bootstrapPath = join(__dirname, "../boot/bootstrap");
   const runtimeGlobs   = await glob("boot/*.ts",{cwd:join(__dirname,"../")});
-  const runtimeFiles   = await download(runtimeGlobs,workPath);
   return {
-    ...runtimeFiles,
+    ...runtimeGlobs,
     bootstrap: new FileFsRef({
       mode: 0o755,
       fsPath: bootstrapPath,
