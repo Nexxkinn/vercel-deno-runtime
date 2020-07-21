@@ -1,4 +1,4 @@
-import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef } from "@vercel/build-utils/dist";
+import { BuildOptions, DownloadedFiles, Files, glob, FileFsRef, download } from "@vercel/build-utils";
 import { stat, readdir, readFile, writeFile, move } from "fs-extra";
 import { join } from 'path';
 import execa from "execa";
@@ -80,13 +80,14 @@ export async function getdenoFiles(workPath: string): Promise<Files> {
 }
 
 
-export async function getbootFiles(): Promise<Files> {
+export async function getbootFiles(workPath:string): Promise<Files> {
 	// TODO : Copy compiled boot files instead of recompile.
 	// console.log('get bootstrap')
 	const bootstrapPath = join(__dirname, "../boot/bootstrap");
-	const runtimeGlobs = await glob("boot/*.ts", { cwd: join(__dirname, "../") });
+	const runtimeGlobs = await glob("boot/*.ts", { cwd: join(__dirname, "../")},".deno");
+	const runtimeFiles   = await download(runtimeGlobs,workPath);
 	return {
-		...runtimeGlobs,
+		...runtimeFiles,
 		bootstrap: new FileFsRef({
 			mode: 0o755,
 			fsPath: bootstrapPath,
@@ -105,7 +106,7 @@ export async function CacheEntryPoint(opts: BuildOptions, downloadedFiles: Downl
 
 	const { workPath, entrypoint } = opts;
 	const denobinPath = '.deno/bin/deno';
-	const runtimePath = 'boot/runtime.ts';
+	const runtimePath = '.deno/boot/runtime.ts';
 	const denobin = denoFiles[denobinPath].fsPath;
 	const runtime = bootFiles[runtimePath].fsPath;
 	const entry = downloadedFiles[entrypoint].fsPath;
