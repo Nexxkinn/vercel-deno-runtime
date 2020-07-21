@@ -66,7 +66,7 @@ export default async function startDevServer(
 			if(file.length > 0) {
 				console.log('Dev port received.');
 				me.close();
-				await fs.unlink(portFile);
+				await fs.remove(portFile);
 				res({ port: Number(file) })
 			}
 		})
