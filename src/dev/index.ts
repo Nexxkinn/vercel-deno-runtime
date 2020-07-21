@@ -62,6 +62,7 @@ export default async function startDevServer(
 		env,
 		stdio: ['ignore'], /// stdin, stdout, stderr
 	});
+	console.log('waiting for port...');
 
 	/// we listen any response from tmp/deno-port-RAND
 	const getPort:Promise<DevPort> = new Promise((res) => {
