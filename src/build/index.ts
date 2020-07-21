@@ -12,14 +12,9 @@ export default async function build(opts: BuildOptions) {
 
   console.log("downloading source files");
 
-  const downloadedFiles = await download(
-    files,
-    workPath,
-    meta,
-  );
-  console.log(meta);
+  const downloadedFiles = await download( files, workPath, meta );
   // configure environment variable
-  const denoFiles = await getdenoFiles(workPath,meta.isDev || false);
+  const denoFiles = await getdenoFiles(workPath);
   const bootFiles = await getbootFiles();
   const cacheFiles = await CacheEntryPoint(opts, downloadedFiles,denoFiles,bootFiles);
 
