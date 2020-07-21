@@ -113,7 +113,7 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
   // TODO: create separate function to parse user ENV values
   const tsconfig = process.env.DENO_CONFIG ? [`-c`,`${downloadedFiles[process.env.DENO_CONFIG].fsPath}`] : [];
 
-  const {workPath,entrypoint} = opts;
+  const {workPath,entrypoint, meta = {}} = opts;
   const denobinPath = '.deno/bin/deno';
   const runtimePath = 'boot/runtime.ts';
   const denobin     = denoFiles[denobinPath].fsPath;
@@ -129,120 +129,124 @@ export async function CacheEntryPoint(opts:BuildOptions, downloadedFiles:Downloa
     )
   }
 
-  // patch .graph files to use file paths beginning with /var/task
-  // reference : https://github.com/TooTallNate/vercel-deno/blob/5a236aab30eeb4a6e68216a80f637e687bc59d2b/src/index.ts#L98-L118
-  const workPathUri = `file://${workPath}`;
-  const sourceFiles = new Set<string>();
-  const genFileDir  = join(workPath, '.deno/gen/file');
+  if(!meta.isDev)
+  {
+	// patch .graph files to use file paths beginning with /var/task
+	// reference : https://github.com/TooTallNate/vercel-deno/blob/5a236aab30eeb4a6e68216a80f637e687bc59d2b/src/index.ts#L98-L118
+	const workPathUri = `file://${workPath}`;
+	const sourceFiles = new Set<string>();
+	const genFileDir  = join(workPath, '.deno/gen/file');
 
-  sourceFiles.add(entrypoint);
-  
-  for await (const file of getFilesWithExtension(genFileDir, '.graph')) {
-		let needsWrite = false;
-		const graph: Graph = JSON.parse(await readFile(file, 'utf8'));
-		for (let i = 0; i < graph.deps.length; i++) {
-			const dep = graph.deps[i];
-			if (dep.startsWith(workPathUri)) {
-				const relative = dep.substring(workPathUri.length + 1);
-				const updated = `file:///var/task/${relative}`;
-				graph.deps[i] = updated;
-				sourceFiles.add(relative);
-				needsWrite = true;
-			}
-		}
-		if (needsWrite) {
-			console.log('Patched %j', file);
-			await writeFile(file, JSON.stringify(graph, null, 2));
-		}
-  }
-  
-  for await (const file of getFilesWithExtension(genFileDir, '.buildinfo')) {
-		let needsWrite = false;
-		const buildInfo: BuildInfo = JSON.parse(await readFile(file, 'utf8'));
-		const {
-			fileInfos,
-			referencedMap,
-			exportedModulesMap,
-			semanticDiagnosticsPerFile,
-		} = buildInfo.program;
-
-		for (const filename of Object.keys(fileInfos)) {
-			if (filename.startsWith(workPathUri)) {
-				const relative = filename.substring(workPathUri.length + 1);
-				const updated = `file:///var/task/${relative}`;
-				fileInfos[updated] = fileInfos[filename];
-				delete fileInfos[filename];
-				sourceFiles.add(relative);
-				needsWrite = true;
-			}
-		}
-
-		for (const [filename, refs] of Object.entries(referencedMap)) {
-			for (let i = 0; i < refs.length; i++) {
-				const ref = refs[i];
-				if (ref.startsWith(workPathUri)) {
-					const relative = ref.substring(workPathUri.length + 1);
+	sourceFiles.add(entrypoint);
+	
+	for await (const file of getFilesWithExtension(genFileDir, '.graph')) {
+			let needsWrite = false;
+			const graph: Graph = JSON.parse(await readFile(file, 'utf8'));
+			for (let i = 0; i < graph.deps.length; i++) {
+				const dep = graph.deps[i];
+				if (dep.startsWith(workPathUri)) {
+					const relative = dep.substring(workPathUri.length + 1);
 					const updated = `file:///var/task/${relative}`;
-					refs[i] = updated;
+					graph.deps[i] = updated;
 					sourceFiles.add(relative);
 					needsWrite = true;
 				}
 			}
-
-			if (filename.startsWith(workPathUri)) {
-				const relative = filename.substring(workPathUri.length + 1);
-				const updated = `file:///var/task/${relative}`;
-				referencedMap[updated] = refs;
-				delete referencedMap[filename];
-				sourceFiles.add(relative);
-				needsWrite = true;
+			if (needsWrite) {
+				console.log('Patched %j', file);
+				await writeFile(file, JSON.stringify(graph, null, 2));
 			}
-		}
-
-		for (const [filename, refs] of Object.entries(exportedModulesMap)) {
-			for (let i = 0; i < refs.length; i++) {
-				const ref = refs[i];
-				if (ref.startsWith(workPathUri)) {
-					const relative = ref.substring(workPathUri.length + 1);
-					const updated = `file:///var/task/${relative}`;
-					refs[i] = updated;
-					sourceFiles.add(relative);
-					needsWrite = true;
-				}
-			}
-
-			if (filename.startsWith(workPathUri)) {
-				const relative = filename.substring(workPathUri.length + 1);
-				const updated = `file:///var/task/${relative}`;
-				exportedModulesMap[updated] = refs;
-				delete exportedModulesMap[filename];
-				sourceFiles.add(relative);
-				needsWrite = true;
-			}
-		}
-
-		for (let i = 0; i < semanticDiagnosticsPerFile.length; i++) {
-			const ref = semanticDiagnosticsPerFile[i];
-			if (ref.startsWith(workPathUri)) {
-				const relative = ref.substring(workPathUri.length + 1);
-				const updated = `file:///var/task/${relative}`;
-				semanticDiagnosticsPerFile[i] = updated;
-				sourceFiles.add(relative);
-				needsWrite = true;
-			}
-		}
-
-		if (needsWrite) {
-			console.log('Patched %j', file);
-			await writeFile(file, JSON.stringify(buildInfo, null, 2));
-		}
 	}
-  
-  // move generated files to AWS path /var/task
-  
-  const cwd = join(workPath,'.deno','gen','file',workPath);
-  const aws_task = join(workPath,'.deno','gen','file','var','task');
-  await move(cwd,aws_task,{overwrite:true});
+	
+	for await (const file of getFilesWithExtension(genFileDir, '.buildinfo')) {
+			let needsWrite = false;
+			const buildInfo: BuildInfo = JSON.parse(await readFile(file, 'utf8'));
+			const {
+				fileInfos,
+				referencedMap,
+				exportedModulesMap,
+				semanticDiagnosticsPerFile,
+			} = buildInfo.program;
+
+			for (const filename of Object.keys(fileInfos)) {
+				if (filename.startsWith(workPathUri)) {
+					const relative = filename.substring(workPathUri.length + 1);
+					const updated = `file:///var/task/${relative}`;
+					fileInfos[updated] = fileInfos[filename];
+					delete fileInfos[filename];
+					sourceFiles.add(relative);
+					needsWrite = true;
+				}
+			}
+
+			for (const [filename, refs] of Object.entries(referencedMap)) {
+				for (let i = 0; i < refs.length; i++) {
+					const ref = refs[i];
+					if (ref.startsWith(workPathUri)) {
+						const relative = ref.substring(workPathUri.length + 1);
+						const updated = `file:///var/task/${relative}`;
+						refs[i] = updated;
+						sourceFiles.add(relative);
+						needsWrite = true;
+					}
+				}
+
+				if (filename.startsWith(workPathUri)) {
+					const relative = filename.substring(workPathUri.length + 1);
+					const updated = `file:///var/task/${relative}`;
+					referencedMap[updated] = refs;
+					delete referencedMap[filename];
+					sourceFiles.add(relative);
+					needsWrite = true;
+				}
+			}
+
+			for (const [filename, refs] of Object.entries(exportedModulesMap)) {
+				for (let i = 0; i < refs.length; i++) {
+					const ref = refs[i];
+					if (ref.startsWith(workPathUri)) {
+						const relative = ref.substring(workPathUri.length + 1);
+						const updated = `file:///var/task/${relative}`;
+						refs[i] = updated;
+						sourceFiles.add(relative);
+						needsWrite = true;
+					}
+				}
+
+				if (filename.startsWith(workPathUri)) {
+					const relative = filename.substring(workPathUri.length + 1);
+					const updated = `file:///var/task/${relative}`;
+					exportedModulesMap[updated] = refs;
+					delete exportedModulesMap[filename];
+					sourceFiles.add(relative);
+					needsWrite = true;
+				}
+			}
+
+			for (let i = 0; i < semanticDiagnosticsPerFile.length; i++) {
+				const ref = semanticDiagnosticsPerFile[i];
+				if (ref.startsWith(workPathUri)) {
+					const relative = ref.substring(workPathUri.length + 1);
+					const updated = `file:///var/task/${relative}`;
+					semanticDiagnosticsPerFile[i] = updated;
+					sourceFiles.add(relative);
+					needsWrite = true;
+				}
+			}
+
+			if (needsWrite) {
+				console.log('Patched %j', file);
+				await writeFile(file, JSON.stringify(buildInfo, null, 2));
+			}
+		}
+	
+	// move generated files to AWS path /var/task
+	
+	const cwd = join(workPath,'.deno','gen','file',workPath);
+	const aws_task = join(workPath,'.deno','gen','file','var','task');
+	await move(cwd,aws_task,{overwrite:true});
+  }
+
   return await glob(".deno/**",workPath);
 }
 
