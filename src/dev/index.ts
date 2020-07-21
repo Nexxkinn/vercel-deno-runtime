@@ -46,7 +46,7 @@ export default async function startDevServer(
 		'--allow-read',
 		'--allow-write',
 		...tsconfig,
-		join(__dirname, 'runtime.ts'),
+		join(__dirname, '../boot/dev.runtime.ts'),
 	];
 	
 	const portFile = join( tmpdir(), `deno-port-${Math.random().toString(32).substring(2)}` );
