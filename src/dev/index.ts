@@ -50,6 +50,7 @@ export default async function startDevServer(
 	];
 	
 	const portFile = join( tmpdir(), `deno-port-${Math.random().toString(32).substring(2)}` );
+
 	const env: typeof process.env = {
 		...process.env,
 		...meta.env,
@@ -57,6 +58,7 @@ export default async function startDevServer(
 		DEV_PORT:portFile
 	};
 
+	await fs.createFile(portFile);
 	const child = spawn(denoBinPath, args, {
 		cwd: workPath,
 		env,
