@@ -62,10 +62,11 @@ export default async function startDevServer(
 	/// listen any response from tmp/deno-port-RAND
 	const getPort:Promise<DevPort> = new Promise((res) => {
 		const me = fs.watch(portFile,"utf-8",async () => {
-			console.log('Reading port file...');
 			const file = await readFile(portFile,{encoding:'utf8'})
-			if(file.length > 0) { 
+			if(file.length > 0) {
+				console.log('Dev port received.');
 				me.close();
+				await fs.unlink(portFile);
 				res({ port: Number(file) })
 			}
 		})
@@ -76,7 +77,7 @@ export default async function startDevServer(
 		env,
 		stdio: ['ignore','inherit', 'inherit'], /// stdin, stdout, stderr
 	});
-	console.log('waiting for port...');
+	console.log('waiting for dev port...');
 
 	const result = await getPort;
 

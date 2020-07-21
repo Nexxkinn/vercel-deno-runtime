@@ -5,7 +5,6 @@ function isNetAddr(v: any): v is Deno.NetAddr {
 }
 
 const entrypoint = Deno.env.get('DEV_ENTRYPOINT');
-const portfile = Deno.env.get('DEV_PORT') as string;
 
 const mod = await import(`file://${entrypoint}`);
 const handler = mod.default;
@@ -17,10 +16,10 @@ const server = serve({port:0});
 if (!isNetAddr(server.listener.addr)) throw new Error('No Listener found');
 
 const { port } = server.listener.addr;
-const fdPort = await Deno.open(portfile,{read:false,write:true});
+const portFile = Deno.env.get('DEV_PORT') as string;
 const portBytes = new TextEncoder().encode(String(port));
-Deno.writeAllSync(fdPort, portBytes);
-Deno.close(fdPort.rid);
+Deno.writeFile(portFile, portBytes);
+Deno.env.delete('DEV_PORT');
 
 for await (const req of server) {
 	handler(req);
