@@ -59,21 +59,22 @@ export default async function startDevServer(
 	};
 
 	await fs.createFile(portFile);
-	const child = spawn(denoBinPath, args, {
-		cwd: workPath,
-		env,
-		stdio: ['ignore'], /// stdin, stdout, stderr
-	});
-	console.log('waiting for port...');
-
 	/// we listen any response from tmp/deno-port-RAND
 	const getPort:Promise<DevPort> = new Promise((res) => {
 		fs.watch(portFile,"utf-8",async () => {
 			console.log('file changed detected, read port file...');
 			const file = await readFile(portFile,{encoding:'utf8'})
-			if(file) res({ port: Number(file) })
+			if(file.length > 0) res({ port: Number(file) })
 		})
 	})
+	
+	const child = spawn(denoBinPath, args, {
+		cwd: workPath,
+		env,
+		stdio: ['ignore','ignore','ignore'], /// stdin, stdout, stderr
+	});
+	console.log('waiting for port...');
+
 	const result = await getPort;
 
 	if(isDevPort(result)) return { port: result.port, pid:child.pid }
