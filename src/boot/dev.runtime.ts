@@ -1,4 +1,4 @@
-import { serve } from 'https://deno.land/std/http/server.ts';
+import { serve } from 'https://deno.land/std@0.61.0/http/server.ts';
 
 function isNetAddr(v: any): v is Deno.NetAddr {
 	return v && typeof v.port === 'number';
