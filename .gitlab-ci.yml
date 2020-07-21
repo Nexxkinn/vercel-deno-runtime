@@ -12,7 +12,7 @@ default:
 version-dev:
   stage: version
   only:
-    - dev
+    - devserver
   image: lucemans/docker-deno:alpine
   script:
     - deno run --unstable --allow-env --allow-read --allow-write pipeline/dev-version.ts
@@ -32,7 +32,7 @@ build_deploy:
 test:
   stage: test
   only:
-    - dev
+    - devserver
   image: frolvlad/alpine-glibc:latest
   script:
     - echo 'install node and deno'
@@ -49,4 +49,4 @@ test:
     - echo 'install vercel...'
     - npm i -g vercel
     - echo 'running test...'
-    - deno test --unstable --allow-env --allow-read --allow-write --allow-net=localhost --allow-run pipeline/tests.ts
+    - deno test --unstable --allow-all --allow-net=localhost pipeline/tests.ts
