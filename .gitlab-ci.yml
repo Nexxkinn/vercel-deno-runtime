@@ -12,7 +12,7 @@ default:
 version-dev:
   stage: version
   only:
-    - devserver
+    - dev
   image: lucemans/docker-deno:alpine
   script:
     - deno run --unstable --allow-env --allow-read --allow-write pipeline/dev-version.ts
@@ -32,7 +32,7 @@ build_deploy:
 test:
   stage: test
   only:
-    - devserver
+    - dev
   image: frolvlad/alpine-glibc:latest
   script:
     - echo 'install node and deno'

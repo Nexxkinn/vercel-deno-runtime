@@ -36,16 +36,20 @@ export default async function startDevServer(
 	}
 	if(!denoBinPath) throw new Error("Unable to found Deno binary file");
 
-	const tsconfig = process.env.DENO_CONFIG 
-		? ['--config',join(workPath,process.env.DENO_CONFIG)] 
-		: [];
+	const tsconfig = () => {
+		const conf = process.env.DENO_CONFIG 
+		? join(workPath,process.env.DENO_CONFIG)
+		: opts.files['tsconfig.json'] ? opts.files['tsconfig.json'].fsPath : "";
+
+		return conf ? ['--config',conf] : [];
+	} 
 	const args: string[] = [
 		'run',
 		'--allow-env',
 		'--allow-net',
 		'--allow-read',
 		'--allow-write',
-		...tsconfig,
+		...tsconfig(),
 		join(__dirname, '../boot/dev.runtime.ts'),
 	];
 	
