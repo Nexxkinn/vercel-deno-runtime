@@ -1,4 +1,4 @@
-import { serve } from 'https://deno.land/std/http/server.ts';
+import { serve } from './deps.ts';
 import { NowApiHandler, NowRequest, NowResponse, NowRequestCookies, NowRequestQuery } from './nowHandler.ts';
 
 function isNetAddr(v: any): v is Deno.NetAddr {

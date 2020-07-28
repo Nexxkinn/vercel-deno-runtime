@@ -1,13 +1,11 @@
 import {
   assert,
   assertStringContains,
-} from 'https://deno.land/std@0.61.0/testing/asserts.ts';
-import {
   readJson,
   writeJson,
   ensureDir,
-} from 'https://deno.land/std@0.61.0/fs/mod.ts';
-import { join } from 'https://deno.land/std@0.61.0/path/mod.ts';
+  join 
+} from './deps.ts';
 
 const isWin = Deno.build.os == 'windows';
 const runVercel = isWin ? ['now.cmd'] : ['npx', 'vercel'];

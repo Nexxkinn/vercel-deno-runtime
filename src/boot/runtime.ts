@@ -1,11 +1,12 @@
-import * as base64 from 'https://deno.land/x/base64/mod.ts';
-import { ServerRequest } from 'https://deno.land/std/http/server.ts';
-import { BufReader, BufWriter } from 'https://deno.land/std/io/bufio.ts';
-import { TextProtoReader } from 'https://deno.land/std/textproto/mod.ts';
-import { Context, APIGatewayProxyEvent } from 'https://deno.land/x/lambda/mod.ts';
-import { NowApiHandler, NowRequest, NowResponse, NowRequestCookies, NowRequestQuery } from './nowHandler.ts';
-
+import {
+    base64, 
+    ServerRequest ,
+    BufReader, BufWriter,
+    TextProtoReader,
+    Context, APIGatewayProxyEvent,
+    } from './deps.ts';
 import { setLazyProp, getCookieParser, getQueryParser } from './helpers.ts';
+import { NowApiHandler, NowRequest, NowResponse, NowRequestCookies, NowRequestQuery } from './nowHandler.ts';
 
 interface LambdaContext extends Context {
     invokeid:any,

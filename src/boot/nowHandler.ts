@@ -1,5 +1,5 @@
-import { ServerRequest, Response } from 'https://deno.land/std/http/server.ts';
-import { Cookies } from 'https://deno.land/std/http/cookie.ts';
+import { Cookies, ServerRequest, Response } from './deps.ts';
+
 export type NowRequestCookies = Cookies;
 
 export type NowRequestQuery = { [key: string]: string | string[] };

@@ -1,8 +1,7 @@
 import {
   readJson,
-  writeJson,
-  ensureDir,
-} from 'https://deno.land/std/fs/mod.ts';
+  writeJson
+} from './deps.ts';
 
 const sha = Deno.env.get('CI_COMMIT_SHA');
 if (!sha) {

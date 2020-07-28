@@ -1,5 +1,5 @@
+import { getCookies } from "./deps.ts";
 import { NowRequest, NowRequestCookies, NowRequestQuery } from "./nowHandler.ts";
-import { getCookies } from "https://deno.land/std/http/cookie.ts";
 
 export function setLazyProp<T>(req: NowRequest, prop: string, getter: () => T) {
   const opts = { configurable: true, enumerable: true };
